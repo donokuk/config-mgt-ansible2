@@ -1,0 +1,51 @@
+---
+
+# Ansible playbook for standard installations and commands.
+
+
+- hosts: all
+  become: true
+  tasks:	
+   - name: upgrade and update repos
+     apt: upgrade=dist update_cache=yes
+
+   - name: change timezone to london settings
+     command: timedatectl set-timezone Europe/London
+
+- hosts: jwebservers
+  become: true
+  tasks:
+   - name: installing and updating and repos
+     apt: name={{item}} state=present update_cache=yes
+     with_items: 
+         - nfs-common
+         - apache2
+    
+   - name: ensure apache2 started
+     service: name=apache2 state=started enabled=yes
+
+- hosts: db
+  become: true
+  tasks: 
+   - name: installing and updating repos
+     apt: name=nfs-common state=present update_cache=yes
+
+- hosts: jenkinsmaster
+  become: true
+  tasks:  
+   - name: installing and updating repos
+     apt: name={{item}} state=present update_cache=yes
+     with_items: 
+      - nfs-common
+      - default-jre
+
+- hosts: nfs
+  become: true
+  tasks:  
+   - name: installing and updating repos
+     apt: name={{item}} state=present update_cache=yes
+     with_items: 
+      - nfs-kernel-server
+      - lvm2
+
+...
